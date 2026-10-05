@@ -223,7 +223,8 @@ function drawScreen(now) {
   for (; size > 20 * K; size -= 4 * K) {
     ctx.font = `${Math.round(size)}px ${HEAD}`;
     lines = wrap(full, availW);
-    if (lines.length * size * 1.12 <= textH) break;
+    const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
+    if (lines.length * size * 1.12 <= textH && widest <= availW) break;
   }
   ctx.font = `${Math.round(size)}px ${HEAD}`;
 
@@ -297,7 +298,13 @@ function resize() {
   src.height = h;
   display.width = w;
   display.height = h;
-  // форма ввода — DOM поверх canvas: резервируем под неё место и выравниваем по бегущей строке
+  measure();
+}
+
+// Форма ввода и футер — DOM поверх canvas: резервируем под них место и выравниваем
+// по бегущей строке. Вызывается при ресайзе и при любом изменении их размеров.
+function measure() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const k = Math.min(innerWidth, innerHeight) / 720;
   const footCss = Math.max(innerHeight * 0.05, $("foot").offsetHeight + 10);
   document.documentElement.style.setProperty("--k", String(k));
@@ -358,7 +365,7 @@ form.addEventListener("submit", async (e) => {
           note = "сигнал внедрён";
         } else {
           blocked = res.status === 422 || res.status === 429;
-          note = ERR[res.status] || "помехи в канале связи";
+          note = ERR[res.status] || `помехи в канале связи (${res.status})`;
         }
       } catch {
         note = "помехи в канале связи";
@@ -383,6 +390,12 @@ form.addEventListener("submit", async (e) => {
 
 addEventListener("resize", resize);
 resize();
+if (window.ResizeObserver) {
+  const ro = new ResizeObserver(measure);
+  ro.observe($("inject"));
+  ro.observe($("foot"));
+}
+document.fonts?.ready.then(measure);
 document.fonts?.load(`20px "Russo One"`);
 document.fonts?.load(`20px "Share Tech Mono"`);
 triggerSwap(performance.now());
