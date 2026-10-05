@@ -110,83 +110,28 @@ footer {
   right: 5vmin;
   bottom: 10px;
   display: flex;
-  gap: 12px;
+  gap: 4px 16px;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 11px;
-  color: var(--dim);
-}
-
-footer button {
-  background: transparent;
-  color: var(--dim);
-  border: 1px solid var(--dim);
-  padding: 3px 8px;
-  font-size: 11px;
-}
-
-footer button:hover:not(:disabled) {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--ink);
-}
-
-/* предупреждение при входе */
-#gate {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgba(6, 7, 11, 0.93);
-  z-index: 10;
-}
-
-#gate[hidden] {
-  display: none;
-}
-
-.gate-box {
-  max-width: 520px;
-  border: 1px solid var(--cyan);
-  padding: 28px;
-  box-shadow: 4px 4px 0 var(--magenta), -4px -4px 0 var(--cyan);
-}
-
-.gate-box h1 {
-  margin: 0 0 16px;
-  font: 56px/1 var(--head);
-  letter-spacing: 0.04em;
-  text-shadow: 3px 0 var(--magenta), -3px 0 var(--cyan);
-}
-
-.warn {
-  margin: 0 0 16px;
-  line-height: 1.5;
-}
-
-.warn strong {
-  color: var(--magenta);
-}
-
-.calm {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  color: var(--dim);
-  cursor: pointer;
-}
-
-.fine {
-  margin: 18px 0 0;
   font-size: 12px;
   color: var(--dim);
 }
 
-#enter {
-  font-size: 18px;
-  padding: 12px 22px;
+footer a {
+  color: var(--cyan);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+footer a:hover {
+  color: var(--magenta);
+}
+
+footer a:focus-visible {
+  outline: 2px solid var(--magenta);
+  outline-offset: 2px;
 }
 
 @media (max-width: 600px) {

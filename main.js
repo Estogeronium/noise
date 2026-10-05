@@ -29,8 +29,6 @@ const glitch = createGlitch(display);
 const dctx = glitch ? null : display.getContext("2d");
 
 const state = {
-  entered: false,
-  reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
   current: { kind: "standby", text: "ОЖИДАНИЕ СИГНАЛА", sub: "" },
   shownAt: 0,
   history: [],
@@ -98,19 +96,16 @@ function triggerSwap(now) {
 function glitchLevel(now) {
   let g = 0.025;
   const p = (now - state.swapAt) / 750;
-  if (p >= 0 && p <= 1) {
-    if (p >= 0.45 && !state.swapDone) commitSwap(now);
-    g = Math.max(g, Math.pow(Math.sin(Math.PI * p), 0.7));
+  // подмена не должна потеряться, если кадр пришёл поздно (фоновая вкладка, медленное устройство)
+  if (p >= 0.45 && !state.swapDone) commitSwap(now);
+  if (p >= 0 && p <= 1) g = Math.max(g, Math.pow(Math.sin(Math.PI * p), 0.7));
+  if (now > state.nextMicro) {
+    state.microAt = now;
+    state.nextMicro = now + 2000 + Math.random() * 3500;
   }
-  if (!state.reduced) {
-    if (now > state.nextMicro) {
-      state.microAt = now;
-      state.nextMicro = now + 2000 + Math.random() * 3500;
-    }
-    const m = (now - state.microAt) / 180;
-    if (m >= 0 && m <= 1) g = Math.max(g, 0.35 * Math.sin(Math.PI * m));
-  }
-  return state.reduced ? Math.min(g, 0.12) : g;
+  const m = (now - state.microAt) / 180;
+  if (m >= 0 && m <= 1) g = Math.max(g, 0.35 * Math.sin(Math.PI * m));
+  return g;
 }
 
 function commitSwap(now) {
@@ -232,7 +227,7 @@ function drawScreen(now) {
   }
   ctx.font = `${Math.round(size)}px ${HEAD}`;
 
-  const cps = state.reduced ? 1e9 : 42;
+  const cps = 42;
   let budget = Math.floor((age / 1000) * cps);
   const done = budget >= full.length;
   ctx.fillStyle = item.kind === "alert" ? C.magenta : C.ink;
@@ -286,7 +281,7 @@ function drawScreen(now) {
   ctx.textBaseline = "middle";
   const strip = (state.history.length ? state.history : ["ШУМ — ЭФИР ПЕРЕХВАЧЕН"]).join("   ///   ") + "   ///   ";
   const sw = ctx.measureText(strip).width;
-  state.tickerX = (state.tickerX - (state.reduced ? 20 : 90) * K * (1 / 60)) % sw;
+  state.tickerX = (state.tickerX - 90 * K * (1 / 60)) % sw;
   for (let x = state.tickerX; x < W; x += sw) ctx.fillText(strip, m + x, by + bandH / 2);
   ctx.restore();
   ctx.textBaseline = "top";
@@ -312,7 +307,7 @@ function resize() {
 }
 
 function frame(now) {
-  if (state.entered && state.swapDone && now - state.shownAt > holdTime(state.current)) triggerSwap(now);
+  if (state.swapDone && now - state.shownAt > holdTime(state.current)) triggerSwap(now);
   const g = glitchLevel(now);
   drawScreen(now);
   if (glitch) glitch.render(src, now / 1000, g);
@@ -342,7 +337,7 @@ function inject(items, now) {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const theme = field.value.replace(/\s+/g, " ").trim().slice(0, 40);
-  if (!theme || busy || !state.entered) return;
+  if (!theme || busy) return;
   busy = true;
   submit.disabled = true;
   status.textContent = "внедряю сигнал…";
@@ -386,28 +381,10 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// ---------- вход и настройки ----------
-
-$("enter").addEventListener("click", () => {
-  state.reduced = $("calm").checked;
-  state.entered = true;
-  $("gate").hidden = true;
-  triggerSwap(performance.now());
-  field.focus({ preventScroll: true });
-  refill();
-});
-
-$("calm").checked = state.reduced;
-$("calmToggle").addEventListener("click", () => {
-  state.reduced = !state.reduced;
-  $("calmToggle").setAttribute("aria-pressed", String(state.reduced));
-  $("calmToggle").textContent = state.reduced ? "щадящий режим: вкл" : "щадящий режим: выкл";
-});
-$("calmToggle").textContent = state.reduced ? "щадящий режим: вкл" : "щадящий режим: выкл";
-$("calmToggle").setAttribute("aria-pressed", String(state.reduced));
-
 addEventListener("resize", resize);
 resize();
 document.fonts?.load(`20px "Russo One"`);
 document.fonts?.load(`20px "Share Tech Mono"`);
+triggerSwap(performance.now());
+refill();
 requestAnimationFrame(frame);
