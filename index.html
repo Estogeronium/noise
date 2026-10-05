@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ШУМ</title>
+    <meta
+      name="description"
+      content="ШУМ — перехваченный эфир вымышленного ведомства. Бесконечный поток абсурдной цифровой пропаганды. Сатира и арт-проект."
+    />
+    <meta name="theme-color" content="#06070b" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Russo+One&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="screen" aria-hidden="true"></canvas>
+    <div id="sr" class="sr-only" aria-live="polite"></div>
+
+    <form id="inject" autocomplete="off">
+      <label for="theme">внедрить сигнал</label>
+      <input id="theme" maxlength="40" placeholder="слово или тема, например: понедельник" />
+      <button type="submit">отправить</button>
+      <span id="status" role="status"></span>
+    </form>
+
+    <footer id="foot">
+      <button id="calmToggle" type="button"></button>
+      <span>Вымышленные ведомства. Сатира и арт-проект. Тексты генерирует ИИ.</span>
+    </footer>
+
+    <div id="gate">
+      <div class="gate-box">
+        <h1>ШУМ</h1>
+        <p class="warn">
+          <strong>Предупреждение.</strong> Страница содержит мигающие и стробирующие эффекты, которые могут вызвать
+          дискомфорт или приступ при светочувствительной эпилепсии.
+        </p>
+        <label class="calm">
+          <input type="checkbox" id="calm" /> щадящий режим (без резких вспышек и печати текста)
+        </label>
+        <button id="enter" type="button">войти в эфир</button>
+        <p class="fine">
+          Все организации, события и «новости» вымышлены. Любое совпадение — случайный шум.
+        </p>
+      </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

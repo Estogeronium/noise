@@ -1,0 +1,24 @@
+name = "noise-signal"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Домен API. Сработает, если vonzvyagin.ru уже на Cloudflare DNS.
+routes = [{ pattern = "api.noise.vonzvyagin.ru", custom_domain = true }]
+
+[[kv_namespaces]]
+binding = "NOISE_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Секрет OPENAI_API_KEY задаётся отдельно (Settings -> Variables and Secrets), не здесь.
+[vars]
+ALLOWED_ORIGINS = "https://noise.vonzvyagin.ru"
+MODEL = "gpt-4o-mini"
+# Потолки расходов (см. README):
+DAILY_LLM_CALLS = "120"   # вызовов LLM в сутки
+TOTAL_LLM_CALLS = "2000"  # вызовов LLM за всё время
+INJECT_PER_HOUR = "3"     # «внедрений» с одного IP в час
+POOL_MAX = "100"
+POOL_MIN = "30"
+REFRESH_HOURS = "3"
+BATCH_SIZE = "20"
+INJECT_BATCH_SIZE = "6"
