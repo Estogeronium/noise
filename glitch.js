@@ -71,6 +71,15 @@ function compile(gl, type, src) {
 
 // Возвращает null, если WebGL недоступен: вызывающий код рисует исходный canvas как есть.
 export function createGlitch(canvas) {
+  try {
+    return initGlitch(canvas);
+  } catch (err) {
+    console.error("WebGL недоступен, включаю 2D-режим:", err);
+    return null;
+  }
+}
+
+function initGlitch(canvas) {
   const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
   if (!gl) return null;
 

@@ -22,11 +22,32 @@ const SCRAMBLE = "▓▒░█#%@/\\<>+=*";
 const MAX_HISTORY = 6;
 
 const $ = (id) => document.getElementById(id);
-const display = $("screen");
+let display = $("screen");
 const src = document.createElement("canvas");
 const ctx = src.getContext("2d");
 const glitch = createGlitch(display);
-const dctx = glitch ? null : display.getContext("2d");
+// Если WebGL не поднялся, рисуем без шейдера в 2D. Canvas, на котором уже создавали
+// WebGL-контекст, отдаёт 2D-контекст как null, поэтому в этом случае берём свежий.
+let dctx = null;
+if (!glitch) {
+  dctx = display.getContext("2d");
+  if (!dctx) {
+    const fresh = display.cloneNode(false);
+    display.replaceWith(fresh);
+    display = fresh;
+    dctx = fresh.getContext("2d");
+  }
+}
+
+// Любая ошибка видна прямо на странице: без консоли понятно, что сломалось.
+addEventListener("error", (e) => {
+  const st = document.getElementById("status");
+  if (st) st.textContent = `ошибка: ${e.message}`;
+});
+addEventListener("unhandledrejection", (e) => {
+  const st = document.getElementById("status");
+  if (st) st.textContent = `ошибка: ${e.reason && e.reason.message ? e.reason.message : e.reason}`;
+});
 
 const state = {
   current: { kind: "standby", text: "ОЖИДАНИЕ СИГНАЛА", sub: "" },
